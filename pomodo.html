@@ -1,177 +1,207 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Časovač</title>
-    <style>
-        :root {
-            /* Průhledné pozadí pro bezproblémové vložení */
-            --bg-color: transparent;
-            
-            /* Tlumená zelená */
-            --primary-green: #263d30; 
-            --light-green: #3a5c48;
-            --hover-green: #4e7a5f;
-            --text-color: #ffffff;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Dark Academia Pomodoro Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
 
-        body {
-            /* Vynucená průhlednost jako u ostatních widgetů */
-            background: transparent !important;
-            background-color: transparent !important;
-            
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Zarovnání nahoru, aby lícoval s ostatními */
-            min-height: 100vh;
-            margin: 0;
-            padding: 12px;
-            overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    html, body {
+      background: transparent !important;
+      background-color: transparent !important;
+      color-scheme: dark;
+    }
 
-        .pomodoro-card {
-            background-color: var(--primary-green);
-            color: var(--text-color);
-            padding: 50px 40px;
-            border-radius: 12px; /* Sjednoceno s předchozími widgety */
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-            width: 100%;
-            max-width: 340px; /* Sjednocená šířka */
-        }
+    :root {
+      --bg-color: transparent;
+      --card-bg: #263d30; /* Tvá zvolená tlumená zelená */
+      --border-color: #1a2c22;
+      --border-accent: rgba(164, 187, 169, 0.25);
+      --text-main: #ebdcb9;
+      --text-muted: #a4bba9;
+      --btn-bg: #3a5c48;
+      --btn-hover: #4e7a5f;
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Cormorant Garamond', serif;
+    }
 
-        .mode-tags {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            color: #a4bba9;
-        }
+    body {
+      font-family: var(--font-body);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 12px;
+      overflow: hidden;
+    }
 
-        .timer-display {
-            font-size: 5.5rem;
-            font-weight: bold;
-            margin: 20px 0;
-            font-variant-numeric: tabular-nums; /* Zabraňuje poskakování čísel */
-        }
+    .widget-container {
+      width: 100%;
+      max-width: 340px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      text-align: center;
+    }
 
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
+    /* Vnitřní ozdobný rámeček pro sjednocení designu */
+    .widget-container::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      pointer-events: none;
+    }
 
-        button {
-            background-color: var(--light-green);
-            color: var(--text-color);
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    .mode-tags {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
 
-        button:hover {
-            background-color: var(--hover-green);
-            transform: translateY(-2px);
-        }
+    .timer-display {
+      font-family: var(--font-heading);
+      font-size: 4.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 10px 0 20px 0;
+      font-variant-numeric: tabular-nums;
+    }
 
-        button:active {
-            transform: translateY(0);
-        }
-    </style>
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    button {
+      background-color: var(--btn-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover);
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
 
-    <div class="pomodoro-card">
-        <div class="mode-tags" id="mode">Práce</div>
-        <div class="timer-display" id="time">25:00</div>
-        <div class="controls">
-            <button onclick="startTimer()" id="startBtn">Start</button>
-            <button onclick="resetTimer()">Reset</button>
-        </div>
+  <div class="widget-container">
+    <div class="mode-tags" id="mode">Práce</div>
+    <div class="timer-display" id="time">25:00</div>
+    <div class="controls">
+      <button onclick="startTimer()" id="startBtn">Start</button>
+      <button onclick="resetTimer()">Reset</button>
     </div>
+  </div>
 
-    <script>
-        let timeLeft = 25 * 60; 
-        let timerId = null;
-        let isRunning = false;
+  <script>
+    let timeLeft = 25 * 60; 
+    let timerId = null;
+    let isRunning = false;
 
-        const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
+    const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
 
-        const timeDisplay = document.getElementById('time');
-        const startBtn = document.getElementById('startBtn');
+    const timeDisplay = document.getElementById('time');
+    const startBtn = document.getElementById('startBtn');
 
-        function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const formattedMinutes = minutes.toString().padStart(2, '0');
-            const formattedSeconds = seconds.toString().padStart(2, '0');
-            timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
-            document.title = `${formattedMinutes}:${formattedSeconds} - Pomodoro`;
-        }
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      const formattedMinutes = minutes.toString().padStart(2, '0');
+      const formattedSeconds = seconds.toString().padStart(2, '0');
+      timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
+      document.title = `${formattedMinutes}:${formattedSeconds} - Pomodoro`;
+    }
 
-        function startTimer() {
-            if (isRunning) {
-                // Pauza
-                clearInterval(timerId);
-                isRunning = false;
-                startBtn.textContent = 'Start';
-            } else {
-                // Start
-                isRunning = true;
-                startBtn.textContent = 'Pauza';
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    
-                    if (timeLeft === 0) {
-                        clearInterval(timerId);
-                        isRunning = false;
-                        startBtn.textContent = 'Start';
-                        
-                        // Přehrání zvuku
-                        alarmSound.play().catch(error => console.log("Automatické přehrání zvuku bylo prohlížečem zablokováno.", error));
-                        
-                        // Zpoždění alertu
-                        setTimeout(() => {
-                            alert('Čas vypršel! Změna režimu.');
-                            
-                            const modeDisplay = document.getElementById('mode');
-                            if (modeDisplay.textContent === 'Práce') {
-                                timeLeft = 5 * 60; 
-                                modeDisplay.textContent = 'Pauza';
-                            } else {
-                                timeLeft = 25 * 60; 
-                                modeDisplay.textContent = 'Práce';
-                            }
-                            updateDisplay();
-                        }, 100);
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetTimer() {
+    function startTimer() {
+      if (isRunning) {
+        clearInterval(timerId);
+        isRunning = false;
+        startBtn.textContent = 'Start';
+      } else {
+        isRunning = true;
+        startBtn.textContent = 'Pauza';
+        timerId = setInterval(() => {
+          timeLeft--;
+          updateDisplay();
+          
+          if (timeLeft === 0) {
             clearInterval(timerId);
             isRunning = false;
-            timeLeft = 25 * 60;
             startBtn.textContent = 'Start';
-            document.getElementById('mode').textContent = 'Práce';
             
-            // Zastavení zvuku
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
+            alarmSound.play().catch(error => console.log("Přehrání zvuku bylo zablokováno.", error));
             
-            updateDisplay();
-        }
+            setTimeout(() => {
+              alert('Čas vypršel!');
+              
+              const modeDisplay = document.getElementById('mode');
+              if (modeDisplay.textContent === 'Práce') {
+                timeLeft = 5 * 60; 
+                modeDisplay.textContent = 'Pauza';
+              } else {
+                timeLeft = 25 * 60; 
+                modeDisplay.textContent = 'Práce';
+              }
+              updateDisplay();
+            }, 100);
+          }
+        }, 1000);
+      }
+    }
 
-        // Inicializace displeje při načtení
-        updateDisplay();
-    </script>
+    function resetTimer() {
+      clearInterval(timerId);
+      isRunning = false;
+      timeLeft = 25 * 60;
+      startBtn.textContent = 'Start';
+      document.getElementById('mode').textContent = 'Práce';
+      
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+      
+      updateDisplay();
+    }
+
+    updateDisplay();
+  </script>
 </body>
 </html>
