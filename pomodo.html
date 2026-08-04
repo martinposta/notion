@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Časovač</title>
+    <style>
+        :root {
+            /* Tvá zvolená tlumená zelená */
+            --primary-green: #263d30; 
+            /* Světlejší tón pro tlačítka a hover efekty */
+            --light-green: #3a5c48;
+            --hover-green: #4e7a5f;
+            /* Jemné pozadí stránky pro kontrast */
+            --bg-color: #f0f4f1;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .pomodoro-card {
+            background-color: var(--primary-green);
+            color: var(--text-color);
+            padding: 50px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(38, 61, 48, 0.25);
+            width: 320px;
+        }
+
+        .mode-tags {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #a4bba9;
+        }
+
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums; /* Zabraňuje poskakování čísel */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--light-green);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--hover-green);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pomodoro-card">
+        <div class="mode-tags" id="mode">Práce</div>
+        <div class="timer-display" id="time">25:00</div>
+        <div class="controls">
+            <button onclick="startTimer()" id="startBtn">Start</button>
+            <button onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 25 * 60; // 25 minut v sekundách
+        let timerId = null;
+        let isRunning = false;
+
+        // Vytvoření zvukového objektu (můžeš nahradit URL vlastní lokální cestou, např. 'zvuk.mp3')
+        const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
+
+        const timeDisplay = document.getElementById('time');
+        const startBtn = document.getElementById('startBtn');
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            const formattedSeconds = seconds.toString().padStart(2, '0');
+            timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
+            document.title = `${formattedMinutes}:${formattedSeconds} - Pomodoro`;
+        }
+
+        function startTimer() {
+            if (isRunning) {
+                // Pauza
+                clearInterval(timerId);
+                isRunning = false;
+                startBtn.textContent = 'Start';
+            } else {
+                // Start
+                isRunning = true;
+                startBtn.textContent = 'Pauza';
+                timerId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    
+                    if (timeLeft === 0) {
+                        clearInterval(timerId);
+                        isRunning = false;
+                        startBtn.textContent = 'Start';
+                        
+                        // Přehrání zvuku
+                        alarmSound.play().catch(error => console.log("Automatické přehrání zvuku bylo prohlížečem zablokováno.", error));
+                        
+                        // Zpoždění alertu, aby měl zvuk čas začít hrát
+                        setTimeout(() => {
+                            alert('Čas vypršel! Změna režimu.');
+                            
+                            // Logika pro přepínání mezi prací a pauzou
+                            const modeDisplay = document.getElementById('mode');
+                            if (modeDisplay.textContent === 'Práce') {
+                                timeLeft = 5 * 60; // 5 minut pauza
+                                modeDisplay.textContent = 'Pauza';
+                            } else {
+                                timeLeft = 25 * 60; // 25 minut práce
+                                modeDisplay.textContent = 'Práce';
+                            }
+                            updateDisplay();
+                        }, 100);
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerId);
+            isRunning = false;
+            timeLeft = 25 * 60;
+            startBtn.textContent = 'Start';
+            document.getElementById('mode').textContent = 'Práce';
+            
+            // Zastavení případného zvuku
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            
+            updateDisplay();
+        }
+
+        // Inicializace displeje při načtení
+        updateDisplay();
+    </script>
+</body>
+</html>
