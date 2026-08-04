@@ -38,7 +38,7 @@
       font-family: var(--font-body);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* Zarovnání ukotvené vždy nahoře */
       min-height: 100vh;
       padding: 12px;
       overflow: hidden;
@@ -55,7 +55,6 @@
       position: relative;
     }
 
-    /* Elegant inner frame line */
     .widget-container::before {
       content: '';
       position: absolute;
@@ -258,13 +257,11 @@
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
 
-      // Adjust for Monday start (0: Sun -> 6, 1: Mon -> 0, etc.)
       let startingDay = firstDay.getDay() - 1;
       if (startingDay === -1) startingDay = 6;
 
       const totalDays = lastDay.getDate();
 
-      // Prev month days padding
       const prevLastDay = new Date(year, month, 0).getDate();
       for (let i = startingDay; i > 0; i--) {
         const dayDiv = document.createElement('div');
@@ -273,7 +270,6 @@
         daysGridEl.appendChild(dayDiv);
       }
 
-      // Current month days
       const today = new Date();
       for (let i = 1; i <= totalDays; i++) {
         const dayDiv = document.createElement('div');
@@ -302,9 +298,9 @@
         daysGridEl.appendChild(dayDiv);
       }
 
-      // Next month days padding
+      // Pevně stanovených 42 buněk = 6 řádků
       const totalCells = daysGridEl.children.length;
-      const targetTotal = totalCells <= 35 ? 35 : 42;
+      const targetTotal = 42; 
       const daysToFill = targetTotal - totalCells;
 
       for (let i = 1; i <= daysToFill; i++) {
@@ -314,7 +310,6 @@
         daysGridEl.appendChild(dayDiv);
       }
 
-      // Footer date display
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       currentDateDisplay.textContent = today.toLocaleDateString('cs-CZ', options);
     }
