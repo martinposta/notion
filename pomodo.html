@@ -6,23 +6,28 @@
     <title>Pomodoro Časovač</title>
     <style>
         :root {
-            /* Tvá zvolená tlumená zelená */
+            /* Průhledné pozadí pro bezproblémové vložení */
+            --bg-color: transparent;
+            
+            /* Tlumená zelená */
             --primary-green: #263d30; 
-            /* Světlejší tón pro tlačítka a hover efekty */
             --light-green: #3a5c48;
             --hover-green: #4e7a5f;
-            /* Jemné pozadí stránky pro kontrast */
-            --bg-color: #f0f4f1;
             --text-color: #ffffff;
         }
 
         body {
-            background-color: var(--bg-color);
+            /* Vynucená průhlednost jako u ostatních widgetů */
+            background: transparent !important;
+            background-color: transparent !important;
+            
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start; /* Zarovnání nahoru, aby lícoval s ostatními */
+            min-height: 100vh;
             margin: 0;
+            padding: 12px;
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
@@ -30,10 +35,11 @@
             background-color: var(--primary-green);
             color: var(--text-color);
             padding: 50px 40px;
-            border-radius: 20px;
+            border-radius: 12px; /* Sjednoceno s předchozími widgety */
             text-align: center;
-            box-shadow: 0 15px 35px rgba(38, 61, 48, 0.25);
-            width: 320px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 340px; /* Sjednocená šířka */
         }
 
         .mode-tags {
@@ -91,11 +97,10 @@
     </div>
 
     <script>
-        let timeLeft = 25 * 60; // 25 minut v sekundách
+        let timeLeft = 25 * 60; 
         let timerId = null;
         let isRunning = false;
 
-        // Vytvoření zvukového objektu (můžeš nahradit URL vlastní lokální cestou, např. 'zvuk.mp3')
         const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
 
         const timeDisplay = document.getElementById('time');
@@ -132,17 +137,16 @@
                         // Přehrání zvuku
                         alarmSound.play().catch(error => console.log("Automatické přehrání zvuku bylo prohlížečem zablokováno.", error));
                         
-                        // Zpoždění alertu, aby měl zvuk čas začít hrát
+                        // Zpoždění alertu
                         setTimeout(() => {
                             alert('Čas vypršel! Změna režimu.');
                             
-                            // Logika pro přepínání mezi prací a pauzou
                             const modeDisplay = document.getElementById('mode');
                             if (modeDisplay.textContent === 'Práce') {
-                                timeLeft = 5 * 60; // 5 minut pauza
+                                timeLeft = 5 * 60; 
                                 modeDisplay.textContent = 'Pauza';
                             } else {
-                                timeLeft = 25 * 60; // 25 minut práce
+                                timeLeft = 25 * 60; 
                                 modeDisplay.textContent = 'Práce';
                             }
                             updateDisplay();
@@ -159,7 +163,7 @@
             startBtn.textContent = 'Start';
             document.getElementById('mode').textContent = 'Práce';
             
-            // Zastavení případného zvuku
+            // Zastavení zvuku
             alarmSound.pause();
             alarmSound.currentTime = 0;
             
