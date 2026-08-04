@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Academia Weather - Praha</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    :root {
+      --bg-color: #14110f;
+      --card-bg: #1e1915;
+      --border-color: #362c24;
+      --border-gold: rgba(201, 162, 99, 0.25);
+      --text-main: #ebdcb9;
+      --text-muted: #8c7a6b;
+      --accent-gold: #c9a263;
+      --accent-gold-light: #f0d5a3;
+      --hover-bg: rgba(201, 162, 99, 0.12);
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Cormorant Garamond', serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; padding: 12px; overflow: hidden;
+    }
+    .widget-container {
+      width: 100%; max-width: 360px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+    .widget-container::before {
+      content: ''; position: absolute;
+      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1px solid var(--border-gold);
+      border-radius: 8px; pointer-events: none;
+    }
+    .header { text-align: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+    .city-title { font-family: var(--font-heading); font-size: 1.15rem; letter-spacing: 3px; color: var(--accent-gold); text-transform: uppercase; }
+    .subtitle { font-size: 0.8rem; color: var(--text-muted); font-style: italic; letter-spacing: 1px; margin-top: 2px; }
+    .current-weather { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px; margin-bottom: 14px; }
+    .current-temp { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 700; color: var(--accent-gold-light); line-height: 1; }
+    .weather-desc { font-size: 1.05rem; color: var(--text-main); font-style: italic; margin-top: 4px; }
+    .weather-icon-large { font-size: 3rem; filter: drop-shadow(0 0 6px rgba(201, 162, 99, 0.3)); }
+    .forecast-title { font-family: var(--font-heading); font-size: 0.75rem; letter-spacing: 2px; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 8px; text-align: center; }
+    .forecast-list { display: flex; flex-direction: column; gap: 6px; }
+    .forecast-item { display: grid; grid-template-columns: 2.2fr 1fr 2fr; align-items: center; padding: 6px 10px; border-radius: 6px; border: 1px solid transparent; background: rgba(201, 162, 99, 0.03); transition: all 0.2s ease; }
+    .forecast-item:hover { background: var(--hover-bg); border-color: var(--border-gold); }
+    .day-name { font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; }
+    .forecast-icon { font-size: 1.1rem; text-align: center; }
+    .temp-range { text-align: right; font-size: 0.95rem; font-weight: 600; }
+    .temp-max { color: var(--accent-gold-light); }
+    .temp-min { color: var(--text-muted); margin-left: 6px; }
+    .footer { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; font-style: italic; color: var(--text-muted); }
+    .loading { text-align: center; padding: 30px 0; font-style: italic; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <div class="widget-container">
+    <div class="header">
+      <div class="city-title">Praha</div>
+      <div class="subtitle">Bohemia • Meteorologia</div>
+    </div>
+
+    <div id="content">
+      <div class="loading">Načítání předpovědi...</div>
+    </div>
+
+    <div class="footer">
+      <span>Caelum non animum mutant</span>
+    </div>
+  </div>
+
+  <script>
+    const weatherCodes = {
+      0: { text: "Jasno", icon: "☀️" },
+      1: { text: "Převážně jasno", icon: "🌤️" },
+      2: { text: "Polojasno", icon: "⛅" },
+      3: { text: "Zataženo", icon: "☁️" },
+      45: { text: "Mlha", icon: "🌫️" },
+      51: { text: "Slabé mrholení", icon: "🌧️" },
+      61: { text: "Mírný déšť", icon: "🌧️" },
+      71: { text: "Sněžení", icon: "❄️" },
+      80: { text: "Přeháňky", icon: "🌦️" },
+      95: { text: "Bouřka", icon: "🌩️" }
+    };
+
+    function getWeatherInfo(code) {
+      return weatherCodes[code] || { text: "Proměnlivo", icon: "🌤️" };
+    }
+
+    async function fetchWeather() {
+      const lat = 50.0755;
+      const lon = 14.4378;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=Europe%2FPrague`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        renderWeather(data);
+      } catch (error) {
+        document.getElementById('content').innerHTML = '<div class="loading">Chyba při načítání dat.</div>';
+      }
+    }
+
+    function renderWeather(data) {
+      const current = data.current_weather;
+      const daily = data.daily;
+      const currentInfo = getWeatherInfo(current.weathercode);
+      const currentTemp = Math.round(current.temperature);
+
+      let forecastHTML = '';
+      const dayNamesCZ = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
+
+      for (let i = 1; i < 6; i++) {
+        const dateObj = new Date(daily.time[i]);
+        const dayName = dayNamesCZ[dateObj.getDay()];
+        const info = getWeatherInfo(daily.weathercode[i]);
+        const maxTemp = Math.round(daily.temperature_2m_max[i]);
+        const minTemp = Math.round(daily.temperature_2m_min[i]);
+
+        forecastHTML += `
+          <div class="forecast-item">
+            <span class="day-name">${dayName}</span>
+            <span class="forecast-icon">${info.icon}</span>
+            <div class="temp-range">
+              <span class="temp-max">${maxTemp}°</span>
+              <span class="temp-min">${minTemp}°</span>
+            </div>
+          </div>`;
+      }
+
+      document.getElementById('content').innerHTML = `
+        <div class="current-weather">
+          <div class="temp-box">
+            <div class="current-temp">${currentTemp}°C</div>
+            <div class="weather-desc">${currentInfo.text}</div>
+          </div>
+          <div class="weather-icon-large">${currentInfo.icon}</div>
+        </div>
+        <div class="forecast-title">Předpověď na 5 dní</div>
+        <div class="forecast-list">${forecastHTML}</div>`;
+    }
+
+    fetchWeather();
+  </script>
+</body>
+</html>
