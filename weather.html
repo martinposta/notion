@@ -10,6 +10,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    
+    html, body {
+      background: transparent !important;
+      background-color: transparent !important;
+      color-scheme: dark;
+    }
+
     :root {
       --bg-color: transparent;
       --card-bg: #443a32;
@@ -23,45 +30,176 @@
       --font-heading: 'Cinzel', serif;
       --font-body: 'Cormorant Garamond', serif;
     }
+
     body {
-      background: transparent !important;
-      background-color: transparent !important;
-      color-scheme: dark;
       font-family: var(--font-body);
-      display: flex; justify-content: center; align-items: flex-start; /* Změněno na flex-start */
-      min-height: 100vh; padding: 12px; overflow: hidden;
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start;
+      min-height: 100vh; 
+      padding: 12px; 
+      overflow: hidden;
     }
+
     .widget-container {
-      width: 100%; max-width: 360px;
+      width: 100%; 
+      max-width: 360px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px; padding: 20px;
+      border-radius: 12px; 
+      padding: 20px;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
       position: relative;
     }
+
     .widget-container::before {
-      content: ''; position: absolute;
+      content: ''; 
+      position: absolute;
       top: 6px; left: 6px; right: 6px; bottom: 6px;
       border: 1px solid var(--border-gold);
-      border-radius: 8px; pointer-events: none;
+      border-radius: 8px; 
+      pointer-events: none;
     }
-    .header { text-align: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-    .city-title { font-family: var(--font-heading); font-size: 1.15rem; letter-spacing: 3px; color: var(--accent-gold); text-transform: uppercase; }
-    .subtitle { font-size: 0.8rem; color: var(--text-muted); font-style: italic; letter-spacing: 1px; margin-top: 2px; }
-    .current-weather { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px; margin-bottom: 14px; }
-    .current-temp { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 700; color: var(--accent-gold-light); line-height: 1; }
-    .weather-desc { font-size: 1.05rem; color: var(--text-main); font-style: italic; margin-top: 4px; }
-    .weather-icon-large { font-size: 3rem; filter: drop-shadow(0 0 6px rgba(201, 162, 99, 0.3)); }
-    .forecast-title { font-family: var(--font-heading); font-size: 0.75rem; letter-spacing: 2px; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 8px; text-align: center; }
+
+    .header { 
+      text-align: center; 
+      margin-bottom: 14px; 
+      padding-bottom: 10px; 
+      border-bottom: 1px solid var(--border-color); 
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .city-title { 
+      font-family: var(--font-heading); 
+      font-size: 1.15rem; 
+      letter-spacing: 3px; 
+      color: var(--accent-gold); 
+      text-transform: uppercase; 
+    }
+
+    /* Tlačítko pro obnovení */
+    .refresh-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      border-radius: 50%;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+      color: var(--accent-gold-light);
+    }
+
+    .refresh-btn.spinning {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    .subtitle { 
+      font-size: 0.8rem; 
+      color: var(--text-muted); 
+      font-style: italic; 
+      letter-spacing: 1px; 
+      margin-top: 2px; 
+    }
+
+    .current-weather { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 10px 8px; 
+      margin-bottom: 14px; 
+    }
+
+    .current-temp { 
+      font-family: var(--font-heading); 
+      font-size: 2.8rem; 
+      font-weight: 700; 
+      color: var(--accent-gold-light); 
+      line-height: 1; 
+    }
+
+    .weather-desc { 
+      font-size: 1.05rem; 
+      color: var(--text-main); 
+      font-style: italic; 
+      margin-top: 4px; 
+    }
+
+    .weather-icon-large { 
+      font-size: 3rem; 
+      filter: drop-shadow(0 0 6px rgba(201, 162, 99, 0.3)); 
+    }
+
+    .forecast-title { 
+      font-family: var(--font-heading); 
+      font-size: 0.75rem; 
+      letter-spacing: 2px; 
+      color: var(--accent-gold); 
+      text-transform: uppercase; 
+      margin-bottom: 8px; 
+      text-align: center; 
+    }
+
     .forecast-list { display: flex; flex-direction: column; gap: 6px; }
-    .forecast-item { display: grid; grid-template-columns: 2.2fr 1fr 2fr; align-items: center; padding: 6px 10px; border-radius: 6px; border: 1px solid transparent; background: rgba(201, 162, 99, 0.03); transition: all 0.2s ease; }
-    .forecast-item:hover { background: var(--hover-bg); border-color: var(--border-gold); }
-    .day-name { font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 1px; color: var(--text-main); text-transform: uppercase; }
+
+    .forecast-item { 
+      display: grid; 
+      grid-template-columns: 2.2fr 1fr 2fr; 
+      align-items: center; 
+      padding: 6px 10px; 
+      border-radius: 6px; 
+      border: 1px solid transparent; 
+      background: rgba(201, 162, 99, 0.03); 
+      transition: all 0.2s ease; 
+    }
+
+    .forecast-item:hover { 
+      background: var(--hover-bg); 
+      border-color: var(--border-gold); 
+    }
+
+    .day-name { 
+      font-family: var(--font-heading); 
+      font-size: 0.8rem; 
+      letter-spacing: 1px; 
+      color: var(--text-main); 
+      text-transform: uppercase; 
+    }
+
     .forecast-icon { font-size: 1.1rem; text-align: center; }
     .temp-range { text-align: right; font-size: 0.95rem; font-weight: 600; }
     .temp-max { color: var(--accent-gold-light); }
     .temp-min { color: var(--text-muted); margin-left: 6px; }
-    .footer { margin-top: 14px; padding-top: 8px; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.75rem; font-style: italic; color: var(--text-muted); }
+    
+    .footer { 
+      margin-top: 14px; 
+      padding-top: 8px; 
+      border-top: 1px solid var(--border-color); 
+      text-align: center; 
+      font-size: 0.75rem; 
+      font-style: italic; 
+      color: var(--text-muted); 
+    }
+
     .loading { text-align: center; padding: 30px 0; font-style: italic; color: var(--text-muted); }
   </style>
 </head>
@@ -69,7 +207,10 @@
 
   <div class="widget-container">
     <div class="header">
-      <div class="city-title">Praha</div>
+      <div class="header-top">
+        <div class="city-title">Praha</div>
+        <button class="refresh-btn" onclick="fetchWeather()" id="refreshBtn" title="Obnovit předpověď">↻</button>
+      </div>
       <div class="subtitle">Bohemia • Meteorologia</div>
     </div>
 
@@ -101,6 +242,9 @@
     }
 
     async function fetchWeather() {
+      const refreshBtn = document.getElementById('refreshBtn');
+      if (refreshBtn) refreshBtn.classList.add('spinning');
+
       const lat = 50.0755;
       const lon = 14.4378;
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=Europe%2FPrague`;
@@ -111,6 +255,11 @@
         renderWeather(data);
       } catch (error) {
         document.getElementById('content').innerHTML = '<div class="loading">Chyba při načítání dat.</div>';
+      } finally {
+        if (refreshBtn) {
+          // Krátká pauza pro plynulejší vizuální efekt roztočení
+          setTimeout(() => refreshBtn.classList.remove('spinning'), 400);
+        }
       }
     }
 
@@ -153,7 +302,11 @@
         <div class="forecast-list">${forecastHTML}</div>`;
     }
 
+    // První načtení dat
     fetchWeather();
+
+    // Automatické obnovení každých 30 minut (30 * 60 * 1000 ms)
+    setInterval(fetchWeather, 1800000);
   </script>
 </body>
 </html>
