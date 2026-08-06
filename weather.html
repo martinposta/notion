@@ -21,7 +21,7 @@
       --bg-color: transparent;
       --card-bg: #443a32;
       --border-color: #362c24;
-      --border-gold: rgba(201, 162, 99, 0.25);
+      --border-gold: rgba(201, 162, 99, 0.4);
       --text-main: #ebdcb9;
       --text-muted: #8c7a6b;
       --accent-gold: #c9a263;
@@ -48,16 +48,17 @@
       border: 1px solid var(--border-color);
       border-radius: 12px; 
       padding: 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* Bez vnitřního stínu */
       position: relative;
     }
 
+    /* Zlatý rámeček přesně přes celou kartičku */
     .widget-container::before {
       content: ''; 
       position: absolute;
-      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      top: 0; left: 0; right: 0; bottom: 0;
       border: 1px solid var(--border-gold);
-      border-radius: 8px; 
+      border-radius: 12px; 
       pointer-events: none;
     }
 
@@ -257,7 +258,6 @@
         document.getElementById('content').innerHTML = '<div class="loading">Chyba při načítání dat.</div>';
       } finally {
         if (refreshBtn) {
-          // Krátká pauza pro plynulejší vizuální efekt roztočení
           setTimeout(() => refreshBtn.classList.remove('spinning'), 400);
         }
       }
@@ -305,7 +305,7 @@
     // První načtení dat
     fetchWeather();
 
-    // Automatické obnovení každých 30 minut (30 * 60 * 1000 ms)
+    // Automatické obnovení každých 30 minut
     setInterval(fetchWeather, 1800000);
   </script>
 </body>

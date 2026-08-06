@@ -20,7 +20,7 @@
       --bg-color: transparent;
       --card-bg: #443a32;
       --border-color: #362c24;
-      --border-gold: rgba(201, 162, 99, 0.25);
+      --border-gold: rgba(201, 162, 99, 0.4);
       --text-main: #ebdcb9;
       --text-muted: #8c7a6b;
       --accent-gold: #c9a263;
@@ -38,7 +38,7 @@
       font-family: var(--font-body);
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* Zarovnání ukotvené vždy nahoře */
+      align-items: flex-start;
       min-height: 100vh;
       padding: 12px;
       overflow: hidden;
@@ -51,19 +51,20 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 18px 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* Bez vnitřního stínu */
       position: relative;
     }
 
+    /* Zlatý rámeček přesně přes celou kartičku */
     .widget-container::before {
       content: '';
       position: absolute;
-      top: 6px;
-      left: 6px;
-      right: 6px;
-      bottom: 6px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       border: 1px solid var(--border-gold);
-      border-radius: 8px;
+      border-radius: 12px;
       pointer-events: none;
     }
 
@@ -298,7 +299,6 @@
         daysGridEl.appendChild(dayDiv);
       }
 
-      // Pevně stanovených 42 buněk = 6 řádků
       const totalCells = daysGridEl.children.length;
       const targetTotal = 42; 
       const daysToFill = targetTotal - totalCells;
