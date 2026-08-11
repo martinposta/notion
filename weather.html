@@ -48,7 +48,7 @@
       border: 1px solid var(--border-color);
       border-radius: 12px; 
       padding: 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* Bez vnitřního stínu */
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
       position: relative;
     }
 
@@ -128,6 +128,16 @@
       justify-content: space-between; 
       padding: 10px 8px; 
       margin-bottom: 14px; 
+    }
+
+    /* Název dne pro dnešní počasí */
+    .current-day {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .current-temp { 
@@ -269,11 +279,16 @@
       const currentInfo = getWeatherInfo(current.weathercode);
       const currentTemp = Math.round(current.temperature);
 
+      // Zjištění dnešního dne v týdnu
+      const fullDayNamesCZ = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
+      const todayDate = new Date(daily.time[0] + 'T00:00:00');
+      const todayName = fullDayNamesCZ[todayDate.getDay()];
+
       let forecastHTML = '';
       const dayNamesCZ = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
 
       for (let i = 1; i < 6; i++) {
-        const dateObj = new Date(daily.time[i]);
+        const dateObj = new Date(daily.time[i] + 'T00:00:00');
         const dayName = dayNamesCZ[dateObj.getDay()];
         const info = getWeatherInfo(daily.weathercode[i]);
         const maxTemp = Math.round(daily.temperature_2m_max[i]);
@@ -293,6 +308,7 @@
       document.getElementById('content').innerHTML = `
         <div class="current-weather">
           <div class="temp-box">
+            <div class="current-day">Dnes • ${todayName}</div>
             <div class="current-temp">${currentTemp}°C</div>
             <div class="weather-desc">${currentInfo.text}</div>
           </div>
