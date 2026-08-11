@@ -24,9 +24,9 @@
 
     :root {
       --bg-color: transparent;
-      --card-bg: #263d30; /* Tvá zvolená tlumená zelená */
+      --card-bg: #263d30;
       --border-color: #1a2c22;
-      --border-accent: rgba(164, 187, 169, 0.25);
+      --border-accent: rgba(164, 187, 169, 0.4);
       --text-main: #ebdcb9;
       --text-muted: #a4bba9;
       --btn-bg: #3a5c48;
@@ -51,22 +51,22 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 24px 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Stín zmenšen o polovinu, bez vnitřního stínu */
       position: relative;
       text-align: center;
     }
 
-    /* Vnitřní ozdobný rámeček pro sjednocení designu */
+    /* Rámeček přesně lícuje s kartičkou */
     .widget-container::before {
       content: '';
       position: absolute;
-      top: 6px;
-      left: 6px;
-      right: 6px;
-      bottom: 6px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       border: 1px solid var(--border-accent);
-      border-radius: 8px;
+      border-radius: 12px;
       pointer-events: none;
     }
 
@@ -76,22 +76,61 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Nastavení délek časů */
+    .settings {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .setting-item select {
+      background: var(--btn-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px 4px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .setting-item select:hover {
+      border-color: var(--text-muted);
+      background: var(--btn-hover);
     }
 
     .timer-display {
       font-family: var(--font-heading);
-      font-size: 4.2rem;
+      font-size: 4rem;
       font-weight: 700;
       color: var(--text-main);
-      margin: 10px 0 20px 0;
+      margin: 4px 0 16px 0;
       font-variant-numeric: tabular-nums;
     }
 
     .controls {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       position: relative;
       z-index: 2;
     }
@@ -100,7 +139,7 @@
       background-color: var(--btn-bg);
       color: var(--text-main);
       border: 1px solid var(--border-color);
-      padding: 10px 20px;
+      padding: 8px 16px;
       font-family: var(--font-heading);
       font-size: 0.75rem;
       letter-spacing: 1.5px;
@@ -125,7 +164,31 @@
 
   <div class="widget-container">
     <div class="mode-tags" id="mode">Práce</div>
+
+    <!-- Výběr časů -->
+    <div class="settings">
+      <div class="setting-item">
+        <label for="workSelect">Práce:</label>
+        <select id="workSelect" onchange="changeSettings()">
+          <option value="15">15m</option>
+          <option value="20">20m</option>
+          <option value="25" selected>25m</option>
+          <option value="30">30m</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="breakSelect">Pauza:</label>
+        <select id="breakSelect" onchange="changeSettings()">
+          <option value="5" selected>5m</option>
+          <option value="10">10m</option>
+          <option value="15">15m</option>
+          <option value="20">20m</option>
+        </select>
+      </div>
+    </div>
+
     <div class="timer-display" id="time">25:00</div>
+
     <div class="controls">
       <button onclick="startTimer()" id="startBtn">Start</button>
       <button onclick="resetTimer()">Reset</button>
@@ -133,14 +196,28 @@
   </div>
 
   <script>
-    let timeLeft = 25 * 60; 
-    let timerId = null;
+    let currentMode = 'work'; // 'work' nebo 'break'
     let isRunning = false;
+    let isFinished = false; // Příznak, že čas doběhl na 00:00
+    let timerId = null;
+
+    const workSelect = document.getElementById('workSelect');
+    const breakSelect = document.getElementById('breakSelect');
+    const timeDisplay = document.getElementById('time');
+    const startBtn = document.getElementById('startBtn');
+    const modeDisplay = document.getElementById('mode');
+
+    let timeLeft = getWorkTime();
 
     const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
 
-    const timeDisplay = document.getElementById('time');
-    const startBtn = document.getElementById('startBtn');
+    function getWorkTime() {
+      return parseInt(workSelect.value) * 60;
+    }
+
+    function getBreakTime() {
+      return parseInt(breakSelect.value) * 60;
+    }
 
     function updateDisplay() {
       const minutes = Math.floor(timeLeft / 60);
@@ -153,36 +230,46 @@
 
     function startTimer() {
       if (isRunning) {
+        // Pozastavení probíhajícího odpočtu
         clearInterval(timerId);
         isRunning = false;
-        startBtn.textContent = 'Start';
+        startBtn.textContent = 'Pokračovat';
       } else {
+        // Pokud jsme ve stavu, kdy čas doběhl na 00:00 a čeká se na spuštění další fáze
+        if (isFinished) {
+          isFinished = false;
+          if (currentMode === 'work') {
+            currentMode = 'break';
+            modeDisplay.textContent = 'Pauza';
+            timeLeft = getBreakTime();
+          } else {
+            currentMode = 'work';
+            modeDisplay.textContent = 'Práce';
+            timeLeft = getWorkTime();
+          }
+          updateDisplay();
+        }
+
         isRunning = true;
         startBtn.textContent = 'Pauza';
+
         timerId = setInterval(() => {
           timeLeft--;
           updateDisplay();
-          
-          if (timeLeft === 0) {
+
+          if (timeLeft <= 0) {
             clearInterval(timerId);
             isRunning = false;
-            startBtn.textContent = 'Start';
-            
-            alarmSound.play().catch(error => console.log("Přehrání zvuku bylo zablokováno.", error));
-            
-            setTimeout(() => {
-              alert('Čas vypršel!');
-              
-              const modeDisplay = document.getElementById('mode');
-              if (modeDisplay.textContent === 'Práce') {
-                timeLeft = 5 * 60; 
-                modeDisplay.textContent = 'Pauza';
-              } else {
-                timeLeft = 25 * 60; 
-                modeDisplay.textContent = 'Práce';
-              }
-              updateDisplay();
-            }, 100);
+            isFinished = true;
+
+            alarmSound.play().catch(error => console.log("Zvuk zablokován:", error));
+
+            // Nastavení textu tlačítka pro další fázi
+            if (currentMode === 'work') {
+              startBtn.textContent = 'Spustit pauzu';
+            } else {
+              startBtn.textContent = 'Spustit práci';
+            }
           }
         }, 1000);
       }
@@ -191,14 +278,27 @@
     function resetTimer() {
       clearInterval(timerId);
       isRunning = false;
-      timeLeft = 25 * 60;
+      isFinished = false;
+      currentMode = 'work';
+      modeDisplay.textContent = 'Práce';
+      timeLeft = getWorkTime();
       startBtn.textContent = 'Start';
-      document.getElementById('mode').textContent = 'Práce';
-      
+
       alarmSound.pause();
       alarmSound.currentTime = 0;
-      
+
       updateDisplay();
+    }
+
+    function changeSettings() {
+      if (!isRunning && !isFinished) {
+        if (currentMode === 'work') {
+          timeLeft = getWorkTime();
+        } else {
+          timeLeft = getBreakTime();
+        }
+        updateDisplay();
+      }
     }
 
     updateDisplay();
