@@ -3,21 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>Dark Academia Calendar Widget for Notion</title>
+  <meta name="color-scheme" content="light dark">
+  <title>Calendar Widget</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    html, body {
+      background: transparent !important;
+      background-color: transparent !important;
     }
 
     :root {
-      --bg-color: transparent;
       --card-bg: #40322a;
       --border-color: #362c24;
       --border-gold: rgba(201, 162, 99, 0.4);
@@ -25,104 +24,69 @@
       --text-muted: #8c7a6b;
       --accent-gold: #faf4eb;
       --accent-gold-light: #f0d5a3;
-      --hover-bg: rgba(201, 162, 99, 0.12);
-      --today-bg: rgba(201, 162, 99, 0.18);
+      --today-bg: rgba(201, 162, 99, 0.2);
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
       --font-heading: 'Cinzel', serif;
       --font-body: 'Cormorant Garamond', serif;
     }
 
+    @media (prefers-color-scheme: light) {
+      :root {
+        --card-bg: #f6f2e9;
+        --border-color: #e3dacb;
+        --border-gold: rgba(180, 140, 80, 0.45);
+        --text-main: #3d3228;
+        --text-muted: #8a7c6e;
+        --accent-gold: #3d3228;
+        --accent-gold-light: #705838;
+        --today-bg: rgba(180, 140, 80, 0.15);
+        --shadow: 0 6px 15px rgba(60, 50, 40, 0.06);
+      }
+    }
+
     body {
-      background: transparent !important;
-      background-color: transparent !important;
-      color-scheme: dark;
       font-family: var(--font-body);
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 0px;
+      padding: 12px;
       overflow: hidden;
     }
 
     .widget-container {
       width: 100%;
-      max-width: 340px;
+      max-width: 360px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 18px 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); /* Bez vnitřního stínu */
+      padding: 20px;
+      box-shadow: var(--shadow);
       position: relative;
     }
 
-    /* Zlatý rámeček přesně přes celou kartičku */
     .widget-container::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       border: 1px solid var(--border-gold);
       border-radius: 12px;
       pointer-events: none;
     }
 
-    .header {
+    .calendar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-color);
+      font-family: var(--font-heading);
+      color: var(--accent-gold);
     }
 
-    .month-year {
-      font-family: var(--font-heading);
-      font-size: 1.05rem;
-      font-weight: 600;
+    .month-title {
+      font-size: 0.95rem;
       letter-spacing: 2px;
-      color: var(--accent-gold);
       text-transform: uppercase;
-    }
-
-    .nav-btns {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      z-index: 2;
-    }
-
-    .btn {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-      background: var(--hover-bg);
-    }
-
-    .btn-today {
-      border-radius: 10px;
-      width: auto;
-      padding: 0 8px;
-      font-size: 0.65rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      height: 26px;
     }
 
     .weekdays {
@@ -130,205 +94,82 @@
       grid-template-columns: repeat(7, 1fr);
       text-align: center;
       font-family: var(--font-heading);
-      font-size: 0.7rem;
-      letter-spacing: 1px;
+      font-size: 0.75rem;
       color: var(--text-muted);
       margin-bottom: 8px;
-      text-transform: uppercase;
     }
 
     .days-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
+      gap: 4px;
       text-align: center;
     }
 
     .day {
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      border-radius: 50%;
       aspect-ratio: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.05rem;
-      font-weight: 600;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: var(--text-main);
-      position: relative;
-      z-index: 1;
     }
 
-    .day.other-month {
-      color: rgba(140, 122, 107, 0.3);
-      cursor: default;
-    }
+    .day.empty { visibility: hidden; }
 
     .day.today {
+      border: 1px solid var(--border-gold);
       background: var(--today-bg);
-      border: 1px solid var(--accent-gold);
+      font-weight: bold;
       color: var(--accent-gold-light);
-      font-weight: 700;
-      box-shadow: 0 0 8px rgba(201, 162, 99, 0.2);
-    }
-
-    .day.selected:not(.today) {
-      background: var(--hover-bg);
-      border: 1px dashed var(--accent-gold);
-      color: var(--accent-gold-light);
-    }
-
-    .day:hover:not(.other-month) {
-      background: var(--hover-bg);
-      color: var(--accent-gold-light);
-    }
-
-    .footer {
-      margin-top: 14px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-    }
-
-    .quote-text {
-      font-size: 0.85rem;
-      font-style: italic;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-      min-height: 1.2em;
-    }
-
-    .current-date-str {
-      color: var(--accent-gold);
-      font-family: var(--font-heading);
-      font-size: 0.65rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-top: 4px;
     }
   </style>
 </head>
 <body>
 
   <div class="widget-container">
-    <div class="header">
-      <div class="month-year" id="monthYear">---</div>
-      <div class="nav-btns">
-        <button class="btn btn-today" id="todayBtn" title="Dnes">Dnes</button>
-        <button class="btn" id="prevBtn" title="Předchozí měsíc">&lt;</button>
-        <button class="btn" id="nextBtn" title="Následující měsíc">&gt;</button>
-      </div>
+    <div class="calendar-header">
+      <div class="month-title" id="monthYear"></div>
+      <div>🗓️</div>
     </div>
-
     <div class="weekdays">
       <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
     </div>
-
     <div class="days-grid" id="daysGrid"></div>
-
-    <div class="footer">
-      <div class="quote-text" id="statusText">Veritas in silentio</div>
-      <div class="current-date-str" id="currentDateDisplay"></div>
-    </div>
   </div>
 
   <script>
-    const monthYearEl = document.getElementById('monthYear');
-    const daysGridEl = document.getElementById('daysGrid');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const todayBtn = document.getElementById('todayBtn');
-    const currentDateDisplay = document.getElementById('currentDateDisplay');
-    const statusText = document.getElementById('statusText');
-
-    const monthNames = [
-      "Leden", "Únor", "Březen", "Duben", "Květen", "Červen",
-      "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"
-    ];
-
-    let displayDate = new Date();
-
     function renderCalendar() {
-      const year = displayDate.getFullYear();
-      const month = displayDate.getMonth();
+      const now = new Date();
+      const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+      
+      document.getElementById('monthYear').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
-      monthYearEl.textContent = `${monthNames[month]} ${year}`;
-      daysGridEl.innerHTML = '';
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
+      let startDay = firstDay.getDay() - 1;
+      if (startDay === -1) startDay = 6;
 
-      let startingDay = firstDay.getDay() - 1;
-      if (startingDay === -1) startingDay = 6;
+      const grid = document.getElementById('daysGrid');
+      grid.innerHTML = '';
 
-      const totalDays = lastDay.getDate();
-
-      const prevLastDay = new Date(year, month, 0).getDate();
-      for (let i = startingDay; i > 0; i--) {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('day', 'other-month');
-        dayDiv.textContent = prevLastDay - i + 1;
-        daysGridEl.appendChild(dayDiv);
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day empty';
+        grid.appendChild(empty);
       }
 
-      const today = new Date();
-      for (let i = 1; i <= totalDays; i++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('day');
-        dayDiv.textContent = i;
-
-        if (
-          i === today.getDate() &&
-          month === today.getMonth() &&
-          year === today.getFullYear()
-        ) {
-          dayDiv.classList.add('today');
-        }
-
-        dayDiv.addEventListener('click', () => {
-          document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
-          dayDiv.classList.add('selected');
-          
-          const clickedDate = new Date(year, month, i);
-          const formatted = clickedDate.toLocaleDateString('cs-CZ', {
-            weekday: 'long', day: 'numeric', month: 'long'
-          });
-          statusText.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
-        });
-
-        daysGridEl.appendChild(dayDiv);
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        if (day === now.getDate()) dayEl.classList.add('today');
+        dayEl.textContent = day;
+        grid.appendChild(dayEl);
       }
-
-      const totalCells = daysGridEl.children.length;
-      const targetTotal = 42; 
-      const daysToFill = targetTotal - totalCells;
-
-      for (let i = 1; i <= daysToFill; i++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('day', 'other-month');
-        dayDiv.textContent = i;
-        daysGridEl.appendChild(dayDiv);
-      }
-
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      currentDateDisplay.textContent = today.toLocaleDateString('cs-CZ', options);
     }
-
-    prevBtn.addEventListener('click', () => {
-      displayDate.setMonth(displayDate.getMonth() - 1);
-      renderCalendar();
-    });
-
-    nextBtn.addEventListener('click', () => {
-      displayDate.setMonth(displayDate.getMonth() + 1);
-      renderCalendar();
-    });
-
-    todayBtn.addEventListener('click', () => {
-      displayDate = new Date();
-      renderCalendar();
-      statusText.textContent = "Veritas in silentio";
-    });
 
     renderCalendar();
   </script>
