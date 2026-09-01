@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>Dark Academia Pomodoro Timer</title>
+  <meta name="color-scheme" content="light dark">
+  <title>Pomodoro Timer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
     html, body {
       background: transparent !important;
       background-color: transparent !important;
-      color-scheme: dark;
     }
 
     :root {
@@ -31,8 +30,22 @@
       --text-muted: #a4bba9;
       --btn-bg: #3a5c48;
       --btn-hover: #4e7a5f;
+      --shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
       --font-heading: 'Cinzel', serif;
       --font-body: 'Cormorant Garamond', serif;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --card-bg: #f6f2e9;
+        --border-color: #e3dacb;
+        --border-accent: rgba(120, 140, 125, 0.4);
+        --text-main: #2d3830;
+        --text-muted: #6e7a71;
+        --btn-bg: #e2ebd8;
+        --btn-hover: #d0ded3;
+        --shadow: 0 6px 15px rgba(60, 50, 40, 0.06);
+      }
     }
 
     body {
@@ -52,19 +65,15 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Stín zmenšen o polovinu, bez vnitřního stínu */
+      box-shadow: var(--shadow);
       position: relative;
       text-align: center;
     }
 
-    /* Rámeček přesně lícuje s kartičkou */
     .widget-container::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       border: 1px solid var(--border-accent);
       border-radius: 12px;
       pointer-events: none;
@@ -79,7 +88,6 @@
       margin-bottom: 6px;
     }
 
-    /* Nastavení délek časů */
     .settings {
       display: flex;
       justify-content: center;
@@ -110,12 +118,6 @@
       font-size: 0.8rem;
       cursor: pointer;
       outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .setting-item select:hover {
-      border-color: var(--text-muted);
-      background: var(--btn-hover);
     }
 
     .timer-display {
@@ -152,11 +154,6 @@
     button:hover {
       background-color: var(--btn-hover);
       border-color: var(--text-muted);
-      transform: translateY(-1px);
-    }
-
-    button:active {
-      transform: translateY(0);
     }
   </style>
 </head>
@@ -165,7 +162,6 @@
   <div class="widget-container">
     <div class="mode-tags" id="mode">Práce</div>
 
-    <!-- Výběr časů -->
     <div class="settings">
       <div class="setting-item">
         <label for="workSelect">Práce:</label>
@@ -196,9 +192,9 @@
   </div>
 
   <script>
-    let currentMode = 'work'; // 'work' nebo 'break'
+    let currentMode = 'work';
     let isRunning = false;
-    let isFinished = false; // Příznak, že čas doběhl na 00:00
+    let isFinished = false;
     let timerId = null;
 
     const workSelect = document.getElementById('workSelect');
@@ -208,34 +204,23 @@
     const modeDisplay = document.getElementById('mode');
 
     let timeLeft = getWorkTime();
-
     const alarmSound = new Audio('https://actions.google.com/sounds/v1/alarms/ding.ogg');
 
-    function getWorkTime() {
-      return parseInt(workSelect.value) * 60;
-    }
-
-    function getBreakTime() {
-      return parseInt(breakSelect.value) * 60;
-    }
+    function getWorkTime() { return parseInt(workSelect.value) * 60; }
+    function getBreakTime() { return parseInt(breakSelect.value) * 60; }
 
     function updateDisplay() {
       const minutes = Math.floor(timeLeft / 60);
       const seconds = timeLeft % 60;
-      const formattedMinutes = minutes.toString().padStart(2, '0');
-      const formattedSeconds = seconds.toString().padStart(2, '0');
-      timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
-      document.title = `${formattedMinutes}:${formattedSeconds} - Pomodoro`;
+      timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
     function startTimer() {
       if (isRunning) {
-        // Pozastavení probíhajícího odpočtu
         clearInterval(timerId);
         isRunning = false;
         startBtn.textContent = 'Pokračovat';
       } else {
-        // Pokud jsme ve stavu, kdy čas doběhl na 00:00 a čeká se na spuštění další fáze
         if (isFinished) {
           isFinished = false;
           if (currentMode === 'work') {
@@ -261,15 +246,8 @@
             clearInterval(timerId);
             isRunning = false;
             isFinished = true;
-
-            alarmSound.play().catch(error => console.log("Zvuk zablokován:", error));
-
-            // Nastavení textu tlačítka pro další fázi
-            if (currentMode === 'work') {
-              startBtn.textContent = 'Spustit pauzu';
-            } else {
-              startBtn.textContent = 'Spustit práci';
-            }
+            alarmSound.play().catch(e => console.log(e));
+            startBtn.textContent = currentMode === 'work' ? 'Spustit pauzu' : 'Spustit práci';
           }
         }, 1000);
       }
@@ -283,20 +261,12 @@
       modeDisplay.textContent = 'Práce';
       timeLeft = getWorkTime();
       startBtn.textContent = 'Start';
-
-      alarmSound.pause();
-      alarmSound.currentTime = 0;
-
       updateDisplay();
     }
 
     function changeSettings() {
       if (!isRunning && !isFinished) {
-        if (currentMode === 'work') {
-          timeLeft = getWorkTime();
-        } else {
-          timeLeft = getBreakTime();
-        }
+        timeLeft = currentMode === 'work' ? getWorkTime() : getBreakTime();
         updateDisplay();
       }
     }
