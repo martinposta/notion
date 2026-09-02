@@ -3,297 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
   <title>Weather Widget</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    
+    /* Reset vnějších okrajů a zamezení scrollbarů */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     html, body {
-      background: transparent !important;
-      background-color: transparent !important;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Odstraní případné posuvníky */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    :root {
-      --bg-color: transparent;
-      --card-bg: #40322a;
-      --border-color: #362c24;
-      --border-gold: rgba(201, 162, 99, 0.4);
-      --text-main: #ebdcb9;
-      --text-muted: #8c7a6b;
-      --accent-gold: #faf4eb;
-      --accent-gold-light: #f0d5a3;
-      --hover-bg: rgba(201, 162, 99, 0.12);
-      --shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-      --font-heading: 'Cinzel', serif;
-      --font-body: 'Cormorant Garamond', serif;
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root {
-        --card-bg: #f6f2e9;
-        --border-color: #e3dacb;
-        --border-gold: rgba(180, 140, 80, 0.45);
-        --text-main: #3d3228;
-        --text-muted: #8a7c6e;
-        --accent-gold: #3d3228;
-        --accent-gold-light: #705838;
-        --hover-bg: rgba(180, 140, 80, 0.08);
-        --shadow: 0 6px 15px rgba(60, 50, 40, 0.06);
-      }
-    }
-
-    body {
-      font-family: var(--font-body);
-      display: flex; 
-      justify-content: center; 
-      align-items: flex-start;
-      min-height: 100vh; 
-      padding: 12px; 
-      overflow: hidden;
-    }
-
-    .widget-container {
-      width: 100%; 
-      max-width: 360px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px; 
-      padding: 20px;
-      box-shadow: var(--shadow);
-      position: relative;
-    }
-
-    .widget-container::before {
-      content: ''; 
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border: 1px solid var(--border-gold);
-      border-radius: 12px; 
-      pointer-events: none;
-    }
-
-    .header { 
-      text-align: center; 
-      margin-bottom: 14px; 
-      padding-bottom: 10px; 
-      border-bottom: 1px solid var(--border-color); 
-    }
-
-    .header-top {
+    /* Hlavní kontejner – zabírá 100 % Notion bloku */
+    .weather-container {
+      width: 100vw;
+      height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      position: relative;
+      padding: 4%; /* Vnitřní bezpečný prostor */
+      background: transparent; /* Přizpůsobí se pozadí v Notion */
     }
 
-    .city-title { 
-      font-family: var(--font-heading); 
-      font-size: 1.15rem; 
-      letter-spacing: 3px; 
-      color: var(--accent-gold); 
-      text-transform: uppercase; 
+    /* Responzivní přizpůsobení velikosti textu podle výšky/šířky okna */
+    .temp {
+      font-size: clamp(1.5rem, 8vh, 4rem);
+      font-weight: bold;
+      line-height: 1.1;
     }
 
-    .refresh-btn {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: var(--accent-gold);
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 4px;
+    .city {
+      font-size: clamp(0.9rem, 3vh, 1.5rem);
+      opacity: 0.8;
+      margin-top: 0.2em;
     }
 
-    .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
-    @keyframes spin { 100% { transform: translateY(-50%) rotate(360deg); } }
-
-    .subtitle { 
-      font-size: 0.8rem; 
-      color: var(--text-muted); 
-      font-style: italic; 
-      letter-spacing: 1px; 
-      margin-top: 2px; 
+    .details {
+      font-size: clamp(0.75rem, 2.5vh, 1.1rem);
+      opacity: 0.6;
+      margin-top: 0.4em;
     }
-
-    .current-weather { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
-      padding: 10px 8px; 
-      margin-bottom: 14px; 
-    }
-
-    .current-day {
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      letter-spacing: 1.5px;
-      color: var(--accent-gold);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .current-temp { 
-      font-family: var(--font-heading); 
-      font-size: 2.8rem; 
-      font-weight: 700; 
-      color: var(--accent-gold-light); 
-      line-height: 1; 
-    }
-
-    .weather-desc { 
-      font-size: 1.05rem; 
-      color: var(--text-main); 
-      font-style: italic; 
-      margin-top: 4px; 
-    }
-
-    .weather-icon-large { font-size: 3rem; }
-
-    .forecast-title { 
-      font-family: var(--font-heading); 
-      font-size: 0.75rem; 
-      letter-spacing: 2px; 
-      color: var(--accent-gold); 
-      text-transform: uppercase; 
-      margin-bottom: 8px; 
-      text-align: center; 
-    }
-
-    .forecast-list { display: flex; flex-direction: column; gap: 6px; }
-
-    .forecast-item { 
-      display: grid; 
-      grid-template-columns: 2.2fr 1fr 2fr; 
-      align-items: center; 
-      padding: 6px 10px; 
-      border-radius: 6px; 
-      background: var(--hover-bg); 
-    }
-
-    .day-name { 
-      font-family: var(--font-heading); 
-      font-size: 0.8rem; 
-      letter-spacing: 1px; 
-      color: var(--text-main); 
-      text-transform: uppercase; 
-    }
-
-    .forecast-icon { font-size: 1.1rem; text-align: center; }
-    .temp-range { text-align: right; font-size: 0.95rem; font-weight: 600; }
-    .temp-max { color: var(--accent-gold-light); }
-    .temp-min { color: var(--text-muted); margin-left: 6px; }
-    
-    .footer { 
-      margin-top: 14px; 
-      padding-top: 8px; 
-      border-top: 1px solid var(--border-color); 
-      text-align: center; 
-      font-size: 0.75rem; 
-      font-style: italic; 
-      color: var(--text-muted); 
-    }
-
-    .loading { text-align: center; padding: 30px 0; font-style: italic; color: var(--text-muted); }
   </style>
 </head>
 <body>
 
-  <div class="widget-container">
-    <div class="header">
-      <div class="header-top">
-        <div class="city-title">Praha</div>
-        <button class="refresh-btn" onclick="fetchWeather()" id="refreshBtn" title="Obnovit">↻</button>
-      </div>
-      <div class="subtitle">Bohemia • Meteorologia</div>
-    </div>
-
-    <div id="content">
-      <div class="loading">Načítání předpovědi...</div>
-    </div>
-
-    <div class="footer">
-      <span>Caelum non animum mutant</span>
-    </div>
+  <div class="weather-container">
+    <!-- Zde vložte váš stávající HTML/JS kód pro počasí -->
+    <div class="temp" id="temp">21°C</div>
+    <div class="city" id="city">Praha</div>
+    <div class="details" id="details">Polojasno</div>
   </div>
 
-  <script>
-    const weatherCodes = {
-      0: { text: "Jasno", icon: "☀️" },
-      1: { text: "Převážně jasno", icon: "🌤️" },
-      2: { text: "Polojasno", icon: "⛅" },
-      3: { text: "Zataženo", icon: "☁️" },
-      45: { text: "Mlha", icon: "🌫️" },
-      51: { text: "Slabé mrholení", icon: "🌧️" },
-      61: { text: "Mírný déšť", icon: "🌧️" },
-      71: { text: "Sněžení", icon: "❄️" },
-      80: { text: "Přeháňky", icon: "🌦️" },
-      95: { text: "Bouřka", icon: "🌩️" }
-    };
-
-    function getWeatherInfo(code) { return weatherCodes[code] || { text: "Proměnlivo", icon: "🌤️" }; }
-
-    async function fetchWeather() {
-      const refreshBtn = document.getElementById('refreshBtn');
-      if (refreshBtn) refreshBtn.classList.add('spinning');
-
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=50.0755&longitude=14.4378&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=Europe%2FPrague`);
-        const data = await res.json();
-        renderWeather(data);
-      } catch (e) {
-        document.getElementById('content').innerHTML = '<div class="loading">Chyba při načítání dat.</div>';
-      } finally {
-        if (refreshBtn) setTimeout(() => refreshBtn.classList.remove('spinning'), 400);
-      }
-    }
-
-    function renderWeather(data) {
-      const current = data.current_weather;
-      const daily = data.daily;
-      const currentInfo = getWeatherInfo(current.weathercode);
-      
-      const fullDays = ["Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota"];
-      const shortDays = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
-      
-      const todayDate = new Date(daily.time[0] + 'T00:00:00');
-      const todayName = fullDays[todayDate.getDay()];
-
-      let forecastHTML = '';
-      for (let i = 1; i < 6; i++) {
-        const d = new Date(daily.time[i] + 'T00:00:00');
-        const info = getWeatherInfo(daily.weathercode[i]);
-        forecastHTML += `
-          <div class="forecast-item">
-            <span class="day-name">${shortDays[d.getDay()]}</span>
-            <span class="forecast-icon">${info.icon}</span>
-            <div class="temp-range">
-              <span class="temp-max">${Math.round(daily.temperature_2m_max[i])}°</span>
-              <span class="temp-min">${Math.round(daily.temperature_2m_min[i])}°</span>
-            </div>
-          </div>`;
-      }
-
-      document.getElementById('content').innerHTML = `
-        <div class="current-weather">
-          <div class="temp-box">
-            <div class="current-day">Dnes • ${todayName}</div>
-            <div class="current-temp">${Math.round(current.temperature)}°C</div>
-            <div class="weather-desc">${currentInfo.text}</div>
-          </div>
-          <div class="weather-icon-large">${currentInfo.icon}</div>
-        </div>
-        <div class="forecast-title">Předpověď na 5 dní</div>
-        <div class="forecast-list">${forecastHTML}</div>`;
-    }
-
-    fetchWeather();
-    setInterval(fetchWeather, 1800000);
-  </script>
 </body>
 </html>
