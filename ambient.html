@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Ambient Player MP3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: 'Cinzel', serif;
+    }
+    :root {
+      --border-gold: #c9a263;
+      --text-main: #ebdcb9;
+      --btn-bg: rgba(201, 162, 99, 0.1);
+      --btn-active: rgba(201, 162, 99, 0.3);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --border-gold: #8c6f3e;
+        --text-main: #2d241e;
+        --btn-bg: rgba(140, 111, 62, 0.1);
+        --btn-active: rgba(140, 111, 62, 0.25);
+      }
+    }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: none !important;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .title {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+    .sound-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sound-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    button {
+      flex: 1;
+      background: var(--btn-bg);
+      border: 1px solid var(--border-gold);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    button.active {
+      background: var(--btn-active);
+      border-width: 2px;
+    }
+    .volume-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .volume-icon {
+      font-size: 0.75rem;
+      color: var(--text-main);
+      opacity: 0.8;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--btn-bg);
+      outline: none;
+      border: 1px solid var(--border-gold);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border-gold);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border-gold);
+      cursor: pointer;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="title">Atmosphera</div>
+    <div class="sound-list">
+
+      <div class="sound-row">
+        <button id="btn-rain" onclick="toggleSound('rain')">🌧️ Déšť</button>
+        <div class="volume-box">
+          <span class="volume-icon">🔊</span>
+          <input type="range" id="vol-rain" min="0" max="1" step="0.01" value="0.7" oninput="setVolume('rain', this.value)">
+        </div>
+      </div>
+
+      <div class="sound-row">
+        <button id="btn-campfire" onclick="toggleSound('campfire')">🔥 Krb</button>
+        <div class="volume-box">
+          <span class="volume-icon">🔊</span>
+          <input type="range" id="vol-campfire" min="0" max="1" step="0.01" value="0.7" oninput="setVolume('campfire', this.value)">
+        </div>
+      </div>
+
+      <div class="sound-row">
+        <button id="btn-coffee" onclick="toggleSound('coffee')">☕ Kavárna</button>
+        <div class="volume-box">
+          <span class="volume-icon">🔊</span>
+          <input type="range" id="vol-coffee" min="0" max="1" step="0.01" value="0.7" oninput="setVolume('coffee', this.value)">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const sounds = {
+      rain: { audio: new Audio('./rain.mp3'), btnId: 'btn-rain', volId: 'vol-rain' },
+      campfire: { audio: new Audio('./campfire.mp3'), btnId: 'btn-campfire', volId: 'vol-campfire' },
+      coffee: { audio: new Audio('./coffee.mp3'), btnId: 'btn-coffee', volId: 'vol-coffee' }
+    };
+
+    Object.keys(sounds).forEach(key => {
+      const s = sounds[key];
+      s.audio.loop = true;
+      s.audio.volume = parseFloat(document.getElementById(s.volId).value);
+    });
+
+    function toggleSound(key) {
+      const s = sounds[key];
+      const btn = document.getElementById(s.btnId);
+
+      if (s.audio.paused) {
+        s.audio.play().catch(e => console.log("Playback error:", e));
+        btn.classList.add('active');
+      } else {
+        s.audio.pause();
+        btn.classList.remove('active');
+      }
+    }
+
+    function setVolume(key, val) {
+      sounds[key].audio.volume = parseFloat(val);
+    }
+  </script>
+</body>
+</html>

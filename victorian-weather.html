@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Victorian Weather</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: transparent !important; width: 100%; display: flex; justify-content: center; font-family: 'Cinzel', serif; }
+    :root { --border-gold: #c9a263; --text-main: #ebdcb9; }
+    @media (prefers-color-scheme: light) { :root { --border-gold: #8c6f3e; --text-main: #2d241e; } }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .loc { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
+    .temp { font-size: 1.8rem; font-weight: 600; margin: 2px 0; }
+    .cond { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="loc" id="city">Praha</div>
+    <div class="temp" id="temp">--°C</div>
+    <div class="cond" id="cond">Nubes & Pluvia</div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.0880&longitude=14.4208&current_weather=true');
+        const data = await res.json();
+        document.getElementById('temp').textContent = Math.round(data.current_weather.temperature) + '°C';
+        const code = data.current_weather.weathercode;
+        let latinCond = "Serenum";
+        if (code > 0 && code <= 3) latinCond = "Nubilum";
+        else if (code >= 51) latinCond = "Pluvia";
+        document.getElementById('cond').textContent = latinCond;
+      } catch (e) {
+        document.getElementById('temp').textContent = '16°C';
+      }
+    }
+    getWeather();
+  </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Candle</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    :root {
+      --border-gold: #c9a263;
+      --candle-wax: #ebdcb9;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --border-gold: #8c6f3e;
+        --candle-wax: #d3c4a2;
+      }
+    }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .holder {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .glow {
+      position: absolute;
+      top: -15px;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle, rgba(255,180,60,0.4) 0%, rgba(255,140,0,0) 70%);
+      border-radius: 50%;
+      animation: pulseGlow 1.8s infinite alternate ease-in-out;
+    }
+    .flame {
+      width: 12px;
+      height: 22px;
+      background: radial-gradient(ellipse at bottom, #fff 0%, #ffbe3b 40%, #d94f00 100%);
+      border-radius: 50% 50% 35% 35% / 80% 80% 35% 35%;
+      box-shadow: 0 0 12px #ff9d00;
+      animation: flicker 0.1s infinite alternate;
+      z-index: 2;
+    }
+    .wick {
+      width: 2px;
+      height: 6px;
+      background: #222;
+      z-index: 1;
+    }
+    .wax {
+      width: 24px;
+      height: 70px;
+      background: linear-gradient(to right, var(--candle-wax), #fff8e7 50%, var(--candle-wax));
+      border-radius: 3px 3px 0 0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .base {
+      width: 50px;
+      height: 8px;
+      background: var(--border-gold);
+      border-radius: 4px;
+      margin-top: -1px;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1deg); }
+      100% { transform: scale(0.95, 1.05) rotate(1.5deg); opacity: 0.92; }
+    }
+    @keyframes pulseGlow {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.2); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="holder">
+      <div class="glow"></div>
+      <div class="flame"></div>
+      <div class="wick"></div>
+      <div class="wax"></div>
+      <div class="base"></div>
+    </div>
+  </div>
+</body>
+</html>

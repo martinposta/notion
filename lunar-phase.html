@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Lunar Phase & Eclipse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: 'Cinzel', serif;
+    }
+    :root {
+      --border-gold: #c9a263;
+      --text-main: #ebdcb9;
+      --text-sub: #a8997c;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --border-gold: #8c6f3e;
+        --text-main: #2d241e;
+        --text-sub: #5c4a31;
+      }
+    }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .moon-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #111;
+      box-shadow: 0 0 10px rgba(201, 162, 99, 0.2);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-gold);
+    }
+    .moon-phase-shadow {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      border-radius: 50%;
+      background: var(--border-gold);
+      opacity: 0.85;
+    }
+    .phase-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+    .divider {
+      width: 60%;
+      height: 1px;
+      background: var(--border-gold);
+      opacity: 0.4;
+    }
+    .eclipse-box {
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+    .eclipse-days {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="moon-icon">
+      <div class="moon-phase-shadow" id="moonShadow"></div>
+    </div>
+    <div class="phase-name" id="phaseName">Plenilunium</div>
+    <div class="divider"></div>
+    <div class="eclipse-box">
+      Úplné zatmění za <span class="eclipse-days" id="eclipseDays">--</span> dní
+    </div>
+  </div>
+
+  <script>
+    function getLunarPhase(date) {
+      const cycle = 29.5305877057;
+      const knownNewMoon = new Date(1970, 0, 7, 20, 35, 0);
+      const daysSince = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+      const currentCycle = (daysSince % cycle + cycle) % cycle;
+      
+      if (currentCycle < 1.84) return { name: "Novilunium", shadow: "0%" };
+      if (currentCycle < 5.53) return { name: "Luna Crescens", shadow: "25%" };
+      if (currentCycle < 9.22) return { name: "Primo Crescens", shadow: "50%" };
+      if (currentCycle < 12.91) return { name: "Luna Gibbosa", shadow: "75%" };
+      if (currentCycle < 16.61) return { name: "Plenilunium", shadow: "100%" };
+      if (currentCycle < 20.30) return { name: "Luna Decrescens", shadow: "75%" };
+      if (currentCycle < 23.99) return { name: "Ultimo Decrescens", shadow: "50%" };
+      return { name: "Luna Silens", shadow: "25%" };
+    }
+
+    function calculateEclipseCountdown() {
+      const today = new Date();
+      // Příští úplné zatmění Měsíce: 31. prosince 2028
+      const nextEclipse = new Date(2028, 11, 31);
+      const diffTime = nextEclipse - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      document.getElementById('eclipseDays').textContent = diffDays > 0 ? diffDays : 0;
+    }
+
+    const today = new Date();
+    const phase = getLunarPhase(today);
+    document.getElementById('phaseName').textContent = phase.name;
+    document.getElementById('moonShadow').style.opacity = parseFloat(phase.shadow) / 100;
+    calculateEclipseCountdown();
+  </script>
+</body>
+</html>

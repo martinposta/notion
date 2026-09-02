@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Golden Hour Dial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: transparent !important; width: 100%; display: flex; justify-content: center; font-family: 'Cinzel', serif; }
+    :root { --border-gold: #c9a263; --text-main: #ebdcb9; }
+    @media (prefers-color-scheme: light) { :root { --border-gold: #8c6f3e; --text-main: #2d241e; } }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .title { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
+    .times { display: flex; justify-content: space-around; font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+    .val { font-family: 'Cinzel', serif; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="title">Hora Aurea</div>
+    <div class="times">
+      <div>🌅 Východ<br><span class="val">06:18</span></div>
+      <div>🌇 Západ<br><span class="val">19:42</span></div>
+    </div>
+  </div>
+</body>
+</html>

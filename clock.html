@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Analog Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: 'Cinzel', serif;
+    }
+    :root {
+      --border-gold: #c9a263;
+      --text-gold: #ebdcb9;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --border-gold: #8c6f3e;
+        --text-gold: #3d3228;
+      }
+    }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: none !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .clock {
+      width: 170px;
+      height: 170px;
+      border: 2px solid var(--border-gold);
+      border-radius: 50%;
+      position: relative;
+      margin: 10px 0;
+    }
+    .num {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      color: var(--text-gold);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 4px;
+    }
+    .num-1 { transform: rotate(30deg); } .num-1 span { display: inline-block; transform: rotate(-30deg); }
+    .num-2 { transform: rotate(60deg); } .num-2 span { display: inline-block; transform: rotate(-60deg); }
+    .num-3 { transform: rotate(90deg); } .num-3 span { display: inline-block; transform: rotate(-90deg); }
+    .num-4 { transform: rotate(120deg); } .num-4 span { display: inline-block; transform: rotate(-120deg); }
+    .num-5 { transform: rotate(150deg); } .num-5 span { display: inline-block; transform: rotate(-150deg); }
+    .num-6 { transform: rotate(180deg); } .num-6 span { display: inline-block; transform: rotate(-180deg); }
+    .num-7 { transform: rotate(210deg); } .num-7 span { display: inline-block; transform: rotate(-210deg); }
+    .num-8 { transform: rotate(240deg); } .num-8 span { display: inline-block; transform: rotate(-240deg); }
+    .num-9 { transform: rotate(270deg); } .num-9 span { display: inline-block; transform: rotate(-270deg); }
+    .num-10 { transform: rotate(300deg); } .num-10 span { display: inline-block; transform: rotate(-300deg); }
+    .num-11 { transform: rotate(330deg); } .num-11 span { display: inline-block; transform: rotate(-330deg); }
+
+    .hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      background: var(--border-gold);
+      border-radius: 4px;
+    }
+    .hour { width: 3.5px; height: 42px; margin-left: -1.75px; }
+    .minute { width: 2px; height: 60px; margin-left: -1px; }
+    .second { width: 1px; height: 68px; margin-left: -0.5px; background: #b8860b; }
+    .center-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--border-gold);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="clock">
+      <div class="num num-12">XII</div>
+      <div class="num num-1"><span>I</span></div>
+      <div class="num num-2"><span>II</span></div>
+      <div class="num num-3"><span>III</span></div>
+      <div class="num num-4"><span>IV</span></div>
+      <div class="num num-5"><span>V</span></div>
+      <div class="num num-6"><span>VI</span></div>
+      <div class="num num-7"><span>VII</span></div>
+      <div class="num num-8"><span>VIII</span></div>
+      <div class="num num-9"><span>IX</span></div>
+      <div class="num num-10"><span>X</span></div>
+      <div class="num num-11"><span>XI</span></div>
+      
+      <div class="hand hour" id="hr"></div>
+      <div class="hand minute" id="mn"></div>
+      <div class="hand second" id="sc"></div>
+      <div class="center-dot"></div>
+    </div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const sc = now.getSeconds() * 6;
+      const mn = now.getMinutes() * 6 + sc / 60;
+      const hr = (now.getHours() % 12) * 30 + mn / 12;
+
+      document.getElementById('hr').style.transform = `rotate(${hr}deg)`;
+      document.getElementById('mn').style.transform = `rotate(${mn}deg)`;
+      document.getElementById('sc').style.transform = `rotate(${sc}deg)`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>

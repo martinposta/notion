@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Kana Flashcards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: 'Cinzel', serif;
+    }
+    :root {
+      --border-gold: #c9a263;
+      --text-main: #ebdcb9;
+      --btn-bg: rgba(201, 162, 99, 0.15);
+      --btn-active: rgba(201, 162, 99, 0.35);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --border-gold: #8c6f3e;
+        --text-main: #2d241e;
+        --btn-bg: rgba(140, 111, 62, 0.15);
+        --btn-active: rgba(140, 111, 62, 0.35);
+      }
+    }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: none !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .mode-select {
+      display: flex;
+      gap: 6px;
+    }
+    .mode-select button {
+      padding: 4px 10px;
+      font-size: 0.7rem;
+    }
+    .mode-select button.active {
+      background: var(--btn-active);
+      border-width: 2px;
+    }
+    .card-scene {
+      width: 140px;
+      height: 120px;
+      perspective: 600px;
+      cursor: pointer;
+    }
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute;
+      width: 100%; height: 100%;
+      backface-visibility: hidden;
+      border: 1px dashed var(--border-gold);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+    }
+    .card-front { font-size: 3rem; }
+    .card-back {
+      font-size: 1.5rem;
+      transform: rotateY(180deg);
+      letter-spacing: 2px;
+    }
+    .controls {
+      display: flex;
+      gap: 6px;
+    }
+    button {
+      background: var(--btn-bg);
+      border: 1px solid var(--border-gold);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: var(--btn-active);
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="mode-select">
+      <button id="btnKata" class="active" onclick="setMode('katakana')">Katakana</button>
+      <button id="btnHira" onclick="setMode('hiragana')">Hiragana</button>
+    </div>
+
+    <div class="card-scene" onclick="flipCard()">
+      <div class="card" id="card">
+        <div class="card-face card-front" id="kana">ア</div>
+        <div class="card-face card-back" id="romaji">A</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button onclick="prevCard()">Zpět</button>
+      <button onclick="shuffleDeck()">🔀 Zamíchat</button>
+      <button onclick="nextCard()">Další</button>
+    </div>
+  </div>
+
+  <script>
+  const dataHiragana = [
+{ k: "あ", r: "A" }, { k: "い", r: "I" }, { k: "う", r: "U" }, { k: "え", r: "E" }, { k: "お", r: "O" },
+{ k: "か", r: "KA" }, { k: "き", r: "KI" }, { k: "く", r: "KU" }, { k: "け", r: "KE" }, { k: "こ", r: "KO" },
+{ k: "さ", r: "SA" }, { k: "し", r: "SHI" }, { k: "す", r: "SU" }, { k: "せ", r: "SE" }, { k: "そ", r: "SO" },
+{ k: "た", r: "TA" }, { k: "ち", r: "CHI" }, { k: "つ", r: "TSU" }, { k: "て", r: "TE" }, { k: "と", r: "TO" },
+{ k: "な", r: "NA" }, { k: "に", r: "NI" }, { k: "ぬ", r: "NU" }, { k: "ね", r: "NE" }, { k: "の", r: "NO" },
+{ k: "は", r: "HA" }, { k: "ひ", r: "HI" }, { k: "ふ", r: "FU" }, { k: "へ", r: "HE" }, { k: "ほ", r: "HO" },
+{ k: "ま", r: "MA" }, { k: "み", r: "MI" }, { k: "む", r: "MU" }, { k: "め", r: "ME" }, { k: "も", r: "MO" },
+{ k: "や", r: "YA" }, { k: "ゆ", r: "YU" }, { k: "よ", r: "YO" },
+{ k: "ら", r: "RA" }, { k: "り", r: "RI" }, { k: "る", r: "RU" }, { k: "れ", r: "RE" }, { k: "ろ", r: "RO" },
+{ k: "わ", r: "WA" }, { k: "を", r: "WO" }, { k: "ん", r: "N" }
+];
+
+const dataKatakana = [
+{ k: "ア", r: "A" }, { k: "イ", r: "I" }, { k: "ウ", r: "U" }, { k: "エ", r: "E" }, { k: "オ", r: "O" },
+{ k: "カ", r: "KA" }, { k: "キ", r: "KI" }, { k: "ク", r: "KU" }, { k: "ケ", r: "KE" }, { k: "コ", r: "KO" },
+{ k: "サ", r: "SA" }, { k: "シ", r: "SHI" }, { k: "ス", r: "SU" }, { k: "セ", r: "SE" }, { k: "ソ", r: "SO" },
+{ k: "タ", r: "TA" }, { k: "チ", r: "CHI" }, { k: "ツ", r: "TSU" }, { k: "テ", r: "TE" }, { k: "ト", r: "TO" },
+{ k: "ナ", r: "NA" }, { k: "ニ", r: "NI" }, { k: "ヌ", r: "NU" }, { k: "ネ", r: "NE" }, { k: "ノ", r: "NO" },
+{ k: "ハ", r: "HA" }, { k: "ヒ", r: "HI" }, { k: "フ", r: "FU" }, { k: "ヘ", r: "HE" }, { k: "ホ", r: "HO" },
+{ k: "マ", r: "MA" }, { k: "ミ", r: "MI" }, { k: "ム", r: "MU" }, { k: "メ", r: "ME" }, { k: "モ", r: "MO" },
+{ k: "ヤ", r: "YA" }, { k: "ユ", r: "YU" }, { k: "ヨ", r: "YO" },
+{ k: "ラ", r: "RA" }, { k: "リ", r: "RI" }, { k: "ル", r: "RU" }, { k: "レ", r: "RE" }, { k: "ロ", r: "RO" },
+{ k: "ワ", r: "WA" }, { k: "ヲ", r: "WO" }, { k: "ン", r: "N" }
+];
+
+    let deck = [...dataKatakana];
+    let index = 0;
+
+    function setMode(mode) {
+      if (mode === 'katakana') {
+        deck = [...dataKatakana];
+        document.getElementById('btnKata').classList.add('active');
+        document.getElementById('btnHira').classList.remove('active');
+      } else {
+        deck = [...dataHiragana];
+        document.getElementById('btnHira').classList.add('active');
+        document.getElementById('btnKata').classList.remove('active');
+      }
+      index = 0;
+      render();
+    }
+
+    function render() {
+      document.getElementById('card').classList.remove('flipped');
+      setTimeout(() => {
+        document.getElementById('kana').textContent = deck[index].k;
+        document.getElementById('romaji').textContent = deck[index].r;
+      }, 150);
+    }
+
+    function flipCard() {
+      document.getElementById('card').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      index = (index + 1) % deck.length;
+      render();
+    }
+
+    function prevCard() {
+      index = (index - 1 + deck.length) % deck.length;
+      render();
+    }
+
+    function shuffleDeck() {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      index = 0;
+      render();
+    }
+  </script>
+</body>
+</html>

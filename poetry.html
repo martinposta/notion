@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Poetry Snippet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body { background: transparent !important; width: 100%; display: flex; justify-content: center; font-family: 'Cormorant Garamond', serif; }
+    :root { --border-gold: #c9a263; --text-main: #ebdcb9; --btn-bg: rgba(201, 162, 99, 0.15); }
+    @media (prefers-color-scheme: light) { :root { --border-gold: #8c6f3e; --text-main: #2d241e; --btn-bg: rgba(140, 111, 62, 0.15); } }
+    .widget-container {
+      width: 100%;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .verse { font-style: italic; font-size: 1.05rem; line-height: 1.4; }
+    .author { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="widget-container" onclick="nextPoem()" style="cursor: pointer;">
+    <div class="verse" id="verse">„Quoth the Raven 'Nevermore.'“</div>
+    <div class="author" id="author">— E. A. Poe</div>
+  </div>
+
+  <script>
+    const poems = [
+      { v: "„Quoth the Raven 'Nevermore.'“", a: "— E. A. Poe" },
+      { v: "„We are such stuff as dreams are made on.“", a: "— W. Shakespeare" },
+      { v: "„Beauty is truth, truth beauty.“", a: "— J. Keats" },
+      { v: "„I dwell in Possibility.“", a: "— E. Dickinson" }
+    ];
+    let idx = 0;
+    function nextPoem() {
+      idx = (idx + 1) % poems.length;
+      document.getElementById('verse').textContent = poems[idx].v;
+      document.getElementById('author').textContent = poems[idx].a;
+    }
+  </script>
+</body>
+</html>
