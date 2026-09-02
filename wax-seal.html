@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Wax Seal Stamp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      background: transparent !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Cinzel', serif;
+    }
+    .widget-container {
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .seal-wrapper {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .seal-wrapper:active {
+      transform: scale(0.93);
+    }
+    .seal-wax {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 35% 35%, #9e2a2b, #641213 70%, #3a0808);
+      border-radius: 50% 45% 52% 48% / 48% 52% 45% 50%;
+      box-shadow: 
+        0 6px 15px rgba(0,0,0,0.5),
+        inset 0 2px 4px rgba(255,255,255,0.25),
+        inset 0 -3px 6px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 1px solid rgba(201, 162, 99, 0.3);
+      transition: all 0.3s ease;
+    }
+    .seal-inner-ring {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      border: 2px dashed rgba(201, 162, 99, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .monogram {
+      color: #c9a263;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 
+        1px 1px 2px rgba(0,0,0,0.8),
+        -1px -1px 0px rgba(255,255,255,0.15);
+      transition: opacity 0.2s ease;
+    }
+    .seal-wax.pressed {
+      box-shadow: 
+        0 2px 5px rgba(0,0,0,0.3),
+        inset 0 4px 8px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-container">
+    <div class="seal-wrapper" onclick="stampWax()">
+      <div class="seal-wax" id="seal">
+        <div class="seal-inner-ring">
+          <span class="monogram">MP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function stampWax() {
+      const seal = document.getElementById('seal');
+      seal.classList.add('pressed');
+      setTimeout(() => {
+        seal.classList.remove('pressed');
+      }, 300);
+    }
+  </script>
+</body>
+</html>
