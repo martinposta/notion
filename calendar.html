@@ -3,73 +3,175 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Calendar Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    /* Reset okrajů */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
 
     html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: transparent !important;
+      background-color: transparent !important;
     }
 
-    /* Kontejner kalendáře roztažený na 100 % výšky i šířky */
-    .calendar-container {
-      width: 100vw;
-      height: 100vh;
+    :root {
+      --card-bg: #40322a;
+      --border-color: #362c24;
+      --border-gold: rgba(201, 162, 99, 0.4);
+      --text-main: #ebdcb9;
+      --text-muted: #8c7a6b;
+      --accent-gold: #faf4eb;
+      --accent-gold-light: #f0d5a3;
+      --today-bg: rgba(201, 162, 99, 0.2);
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Cormorant Garamond', serif;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --card-bg: #f6f2e9;
+        --border-color: #e3dacb;
+        --border-gold: rgba(180, 140, 80, 0.45);
+        --text-main: #3d3228;
+        --text-muted: #8a7c6e;
+        --accent-gold: #3d3228;
+        --accent-gold-light: #705838;
+        --today-bg: rgba(180, 140, 80, 0.15);
+        --shadow: 0 6px 15px rgba(60, 50, 40, 0.06);
+      }
+    }
+
+    body {
+      font-family: var(--font-body);
       display: flex;
-      flex-direction: column;
-      padding: 2%;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .widget-container {
+      width: 100%;
+      max-width: 360px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .widget-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      pointer-events: none;
     }
 
     .calendar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 15%; /* Zabere 15 % výšky */
-      font-size: clamp(1rem, 3vh, 1.8rem);
-      font-weight: bold;
+      margin-bottom: 14px;
+      font-family: var(--font-heading);
+      color: var(--accent-gold);
     }
 
-    /* Mřížka kalendáře rozprostřená na zbývajících 85 % výšky */
-    .calendar-grid {
+    .month-title {
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .weekdays {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: auto repeat(5, 1fr);
-      height: 85%;
-      gap: 2px;
+      text-align: center;
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
 
-    .day-name, .day-number {
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .day {
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      border-radius: 50%;
+      aspect-ratio: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(0.7rem, 2vh, 1.2rem);
     }
 
-    .day-name {
-      font-weight: 600;
-      opacity: 0.6;
+    .day.empty { visibility: hidden; }
+
+    .day.today {
+      border: 1px solid var(--border-gold);
+      background: var(--today-bg);
+      font-weight: bold;
+      color: var(--accent-gold-light);
     }
   </style>
 </head>
 <body>
 
-  <div class="calendar-container">
-    <!-- Zde vložte váš stávající HTML/JS kód kalendáře -->
+  <div class="widget-container">
     <div class="calendar-header">
-      <span id="month-year">Září 2026</span>
+      <div class="month-title" id="monthYear"></div>
+      <div>🗓️</div>
     </div>
-    <div class="calendar-grid" id="calendar-grid">
-      <!-- Dny kalendáře -->
+    <div class="weekdays">
+      <span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span>
     </div>
+    <div class="days-grid" id="daysGrid"></div>
   </div>
 
+  <script>
+    function renderCalendar() {
+      const now = new Date();
+      const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+      
+      document.getElementById('monthYear').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+      let startDay = firstDay.getDay() - 1;
+      if (startDay === -1) startDay = 6;
+
+      const grid = document.getElementById('daysGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day empty';
+        grid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        if (day === now.getDate()) dayEl.classList.add('today');
+        dayEl.textContent = day;
+        grid.appendChild(dayEl);
+      }
+    }
+
+    renderCalendar();
+  </script>
 </body>
 </html>
